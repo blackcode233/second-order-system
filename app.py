@@ -1,6 +1,24 @@
 import matplotlib.pyplot as plt
-plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
-plt.rcParams['axes.unicode_minus'] = False    # 用来正常显示负号
+from matplotlib import font_manager
+
+# === 云端+本地通用中文修复方案 ===
+# 尝试在系统里找常见的几种中文字体，谁在就用谁
+has_font = False
+for font_name in ['SimHei', 'DejaVu Sans', 'Liberation Sans', 'Arial Unicode MS']:
+    try:
+        # 检查系统或matplotlib里有没有这个字体
+        if any(font_name in f.name for f in font_manager.fontManager.ttflist):
+            plt.rcParams['font.sans-serif'] = [font_name]
+            has_font = True
+            break
+    except:
+        pass
+
+# 如果云端什么中文特有字体都没找到，就开启matplotlib的自带渲染支持
+if not has_font:
+    plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
+
+plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
 import streamlit as st
 import numpy as np
 import control as ct
