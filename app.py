@@ -26,6 +26,11 @@ from matplotlib import font_manager
 if os.path.exists(font_path):
     custom_font = font_manager.FontProperties(fname=font_path)
     plt.rcParams['font.sans-serif'] = [custom_font.get_name()]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.5))
+    
+    # 强行给当前图表指定我们刚刚下载并注册的思源黑体
+    if os.path.exists(font_path):
+        plt.rcParams['font.sans-serif'] = [font_manager.FontProperties(fname=font_path).get_name()]
     font_manager.fontManager.addfont(font_path)
     
 plt.rcParams['axes.unicode_minus'] = False  # 正常显示负号
