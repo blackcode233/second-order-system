@@ -1,27 +1,35 @@
-import matplotlib.pyplot as plt
-from matplotlib import font_manager
-
-# === 云端+本地通用中文修复方案 ===
-# 尝试在系统里找常见的几种中文字体，谁在就用谁
-has_font = False
-for font_name in ['SimHei', 'DejaVu Sans', 'Liberation Sans', 'Arial Unicode MS']:
-    try:
-        # 检查系统或matplotlib里有没有这个字体
-        if any(font_name in f.name for f in font_manager.fontManager.ttflist):
-            plt.rcParams['font.sans-serif'] = [font_name]
-            has_font = True
-            break
-    except:
-        pass
-
-# 如果云端什么中文特有字体都没找到，就开启matplotlib的自带渲染支持
-if not has_font:
-    plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
-
-plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
 import streamlit as st
 import numpy as np
+import matplotlib.pyplot as plt
 import control as ct
+import os
+import urllib.request
+
+# ================= 🚀 终极解决云端+本地中文乱码方案 🚀 =================
+font_path = "SimHei.ttf"
+# 如果当前目录下没有字体文件，自动从网络下载微软黑体文件
+if not os.path.exists(font_path):
+    with st.spinner("正在加载中文字体，请稍候..."):
+        try:
+            url = "https://github.com/adobe-fonts/source-hansans/raw/pages-tables/OTF/SimplifiedChinese/SourceHanSansSC-Regular.otf"
+            urllib.request.urlretrieve(url, font_path)
+        except Exception as e:
+            # 备用下载链接（如果上面的打不开）
+            url = "https://raw.githubusercontent.com/StellarCN/Luogu_Subtask/master/font/SourceHanSansSC-Regular.otf"
+            try:
+                urllib.request.urlretrieve(url, font_path)
+            except:
+                pass
+
+# 强制 Matplotlib 使用下载的字体文件
+from matplotlib import font_manager
+if os.path.exists(font_path):
+    custom_font = font_manager.FontProperties(fname=font_path)
+    plt.rcParams['font.sans-serif'] = [custom_font.get_name()]
+    font_manager.fontManager.addfont(font_path)
+    
+plt.rcParams['axes.unicode_minus'] = False  # 正常显示负号
+# ====================================================================
 
 # 设置网页配置
 st.set_page_config(page_title="二阶控制系统参数分析专家系统", layout="wide")
